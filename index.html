@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      iframe {
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="app-frame"></iframe>
+    <script>
+      // ===== Latest-commit pointer via GitHub Pages (plain text) =====
+      var LATEST_TXT_URL = "https://watercolorpenguin.github.io/TFFiles/latest.txt";
+      var REPO_CDN_BASE = "https://cdn.jsdelivr.net/gh/watercolorpenguin/TFFiles@";
+
+      function isValidGitSha(ref) {
+        return /^[a-f0-9]{7,40}$/i.test(ref);
+      }
+
+      async function fetchLatestRef() {
+        var url = LATEST_TXT_URL + "?t=" + Date.now();
+        var res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch latest.txt: " + res.status);
+        var ref = (await res.text()).trim();
+        if (!isValidGitSha(ref)) throw new Error("latest.txt returned invalid SHA: " + ref);
+        return ref;
+      }
+
+      (async function boot() {
+        var ref;
+        try {
+          ref = await fetchLatestRef();
+        } catch (e) {
+          console.warn("latest.txt fetch failed, falling back to @main:", e);
+          ref = "main";
+        }
+
+        var distUrl = REPO_CDN_BASE + ref + "/dist/index.html";
+        document.getElementById("app-frame").src = distUrl;
+      })();
+    </script>
+  </body>
+</html>
