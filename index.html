@@ -65,7 +65,6 @@
           if (!res.ok) throw new Error("Failed to fetch dist/index.html: " + res.status);
           var html = await res.text();
           html = rewriteRelativeUrls(html, baseUrl);
-          html = html.replace(/document\.location\.protocol/g, '"https:"');
           document.getElementById("app-frame").srcdoc = html;
         } catch (e) {
           console.error("Failed to load app:", e);
