@@ -44,8 +44,8 @@
         try {
           ref = await fetchLatestRef();
         } catch (e) {
-          console.warn("latest.txt fetch failed, falling back to @main:", e);
-          ref = "main";
+          console.warn("latest.txt fetch failed, falling back to @master:", e);
+          ref = "master";
         }
 
         var distUrl = REPO_CDN_BASE + ref + "/dist/index.html";
