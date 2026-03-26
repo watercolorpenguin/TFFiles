@@ -39,6 +39,16 @@
         return ref;
       }
 
+      function rewriteRelativeUrls(html, baseUrl) {
+        // Rewrite src="./..." and href="./..." to absolute CDN URLs
+        html = html.replace(/(src|href)="\.\/([^"]+)"/g, '$1="' + baseUrl + '$2"');
+        // Rewrite src="/..." and href="/..." (root-relative)
+        html = html.replace(/(src|href)="\/([^"]+)"/g, '$1="' + baseUrl + '$2"');
+        // Rewrite bare relative paths (no ./ or / prefix, not already absolute)
+        html = html.replace(/(src|href)="(?!https?:\/\/|data:|blob:|#)([^"]+)"/g, '$1="' + baseUrl + '$2"');
+        return html;
+      }
+
       (async function boot() {
         var ref;
         try {
@@ -49,7 +59,17 @@
         }
 
         var distUrl = REPO_CDN_BASE + ref + "/dist/index.html";
-        document.getElementById("app-frame").src = distUrl;
+        var baseUrl = REPO_CDN_BASE + ref + "/dist/";
+        try {
+          var res = await fetch(distUrl);
+          if (!res.ok) throw new Error("Failed to fetch dist/index.html: " + res.status);
+          var html = await res.text();
+          html = rewriteRelativeUrls(html, baseUrl);
+          document.getElementById("app-frame").srcdoc = html;
+        } catch (e) {
+          console.error("Failed to load app:", e);
+          document.getElementById("app-frame").src = distUrl;
+        }
       })();
     </script>
   </body>
