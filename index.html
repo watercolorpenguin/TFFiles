@@ -65,8 +65,7 @@
           if (!res.ok) throw new Error("Failed to fetch dist/index.html: " + res.status);
           var html = await res.text();
           html = rewriteRelativeUrls(html, baseUrl);
-          // Force all http:// requests to upgrade to https://
-          html = html.replace("<head>", '<head><meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">');
+          html = html.replace(/document\.location\.protocol/g, '"https:"');
           document.getElementById("app-frame").srcdoc = html;
         } catch (e) {
           console.error("Failed to load app:", e);
